@@ -1,0 +1,233 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+/* Barra superior */
+.header {
+  background: linear-gradient(135deg, #4CAF50, #2196F3);
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header button {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* Menú de navegación */
+.nav {
+  display: flex;
+  gap: 5px;
+  padding: 10px 20px;
+  background: white;
+  border-bottom: 1px solid #eee;
+  overflow-x: auto;
+}
+
+.nav button {
+  padding: 8px 16px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.nav button:hover, .nav button.active {
+  background: #2196F3;
+  color: white;
+}
+
+/* Contenedor principal */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Tarjetas */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card h3 {
+  margin-bottom: 12px;
+  font-size: 18px;
+}
+
+/* Grid de tarjetas del dashboard */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.dashboard-card {
+  padding: 24px 12px;
+  border-radius: 16px;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.dashboard-card:hover {
+  transform: scale(1.03);
+}
+
+.dashboard-card .icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Botones */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-primary { background: #2196F3; color: white; }
+.btn-success { background: #4CAF50; color: white; }
+.btn-warning { background: #FF9800; color: white; }
+.btn-danger { background: #f44336; color: white; }
+
+.btn:hover { opacity: 0.9; }
+
+/* Inputs y selects */
+.input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 15px;
+  margin-bottom: 8px;
+  transition: border 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+/* Grid de ejercicios */
+.exercise-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.exercise-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.exercise-card .muscle {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.muscle-pecho { background: #fce4ec; color: #c62828; }
+.muscle-espalda { background: #e8eaf6; color: #283593; }
+.muscle-piernas { background: #e8f5e9; color: #2e7d32; }
+.muscle-hombros { background: #fff3e0; color: #e65100; }
+.muscle-brazos { background: #f3e5f5; color: #6a1b9a; }
+.muscle-core { background: #e0f7fa; color: #00695c; }
+.muscle-cardio { background: #ffebee; color: #b71c1c; }
+.muscle-flexibilidad { background: #e8eaf6; color: #3949ab; }
+.muscle-cuadriceps { background: #e8f5e9; color: #2e7d32; }
+.muscle-femorales { background: #e8f5e9; color: #1b5e20; }
+.muscle-gluteos { background: #fce4ec; color: #880e4f; }
+.muscle-pantorrillas { background: #fff3e0; color: #e65100; }
+.muscle-biceps { background: #f3e5f5; color: #6a1b9a; }
+.muscle-triceps { background: #ede7f6; color: #4527a0; }
+
+/* Barras de progreso */
+.progress-bar {
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-green { background: #c8e6c9; color: #2e7d32; }
+.badge-orange { background: #ffe0b2; color: #e65100; }
+.badge-blue { background: #b3e5fc; color: #01579b; }
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .dashboard-grid { grid-template-columns: 1fr 1fr; }
+  .exercise-grid { grid-template-columns: 1fr; }
+}

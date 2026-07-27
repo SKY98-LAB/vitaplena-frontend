@@ -18,7 +18,6 @@ function Registro({ onRegistrado, onVolver }) {
         nombre: form.nombre,
         apellido: form.apellido
       });
-      // Actualizar perfil con datos corporales
       await api.put('/usuarios/perfil', {
         peso_kg: parseFloat(form.peso_kg),
         altura_cm: parseFloat(form.altura_cm),
@@ -27,7 +26,6 @@ function Registro({ onRegistrado, onVolver }) {
         nivel_experiencia: form.nivel,
         objetivo_principal: form.objetivo
       });
-      // Login automático
       const loginRes = await api.post('/usuarios/login', {
         email: form.email,
         password: form.password
@@ -51,7 +49,15 @@ function Registro({ onRegistrado, onVolver }) {
           <input placeholder="Apellido" value={form.apellido} onChange={(e) => setForm({...form, apellido: e.target.value})} style={inputStyle} />
           <input placeholder="Email" type="email" value={form.email} onChange={(e) => setForm({...form, email: e.target.value})} style={inputStyle} />
           <input placeholder="Contraseña" type="password" value={form.password} onChange={(e) => setForm({...form, password: e.target.value})} style={inputStyle} />
-          <button onClick={() => setPaso(2)} style={btnStyle}>Siguiente →</button>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          <button onClick={() => {
+            if (!form.nombre || !form.email || !form.password) {
+              setError('Completa todos los campos');
+              return;
+            }
+            setError('');
+            setPaso(2);
+          }} style={btnStyle}>Siguiente →</button>
         </div>
       )}
 
@@ -64,8 +70,16 @@ function Registro({ onRegistrado, onVolver }) {
             <option value="M">Masculino</option>
             <option value="F">Femenino</option>
           </select>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
           <button onClick={() => setPaso(1)} style={{...btnStyle, background: '#999'}}>← Atrás</button>
-          <button onClick={() => setPaso(3)} style={btnStyle}>Siguiente →</button>
+          <button onClick={() => {
+            if (!form.peso_kg || !form.altura_cm) {
+              setError('Peso y altura son obligatorios');
+              return;
+            }
+            setError('');
+            setPaso(3);
+          }} style={btnStyle}>Siguiente →</button>
         </div>
       )}
 

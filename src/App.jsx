@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
@@ -7,7 +7,6 @@ import Alimentacion from './pages/Alimentacion';
 import Corporal from './pages/Corporal';
 import Bienestar from './pages/Bienestar';
 import Rutinas from './pages/Rutinas';
-import EntrenamientoActivo from './pages/EntrenamientoActivo';
 
 function App() {
   const [usuario, setUsuario] = useState(() => {
@@ -16,6 +15,14 @@ function App() {
   });
   const [pagina, setPagina] = useState('dashboard');
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    localStorage.setItem('darkMode', darkMode);
+  }, [darkMode]);
 
   const handleLogin = (user) => setUsuario(user);
   const handleRegistrado = (user) => { setUsuario(user); setMostrarRegistro(false); };
@@ -45,8 +52,11 @@ function App() {
     <div>
       <div className="header">
         <h3>🏃 VitaPlena</h3>
-        <div>
-          <span style={{ marginRight: 15, fontSize: 14 }}>{usuario.nombre}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button onClick={() => setDarkMode(!darkMode)} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: 20, cursor: 'pointer' }}>
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+          <span style={{ fontSize: 14 }}>{usuario.nombre}</span>
           <button onClick={handleLogout}>Salir</button>
         </div>
       </div>

@@ -43,6 +43,17 @@ function Login({ onLogin, onCrearCuenta }) {
         <button type="submit" style={{ padding: 10, width: '100%', background: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}>
           Entrar
         </button>
+              <p style={{ textAlign: 'center', color: '#888', margin: '15px 0' }}>o</p>
+      <a
+        href="https://kvbjqetankipzminsfrs.supabase.co/auth/v1/authorize?provider=google&redirect_to=https://vitaplena-frontend-sa79.vercel.app"
+        style={{
+          display: 'block', textAlign: 'center', padding: 12,
+          background: '#fff', color: '#333', border: '1px solid #ddd',
+          borderRadius: 8, textDecoration: 'none', fontWeight: 600, fontSize: 16
+        }}
+      >
+        🅶 Continuar con Google
+      </a>
       </form>
       <p style={{ textAlign: 'center', marginTop: 20 }}>
         ¿No tienes cuenta? <a href="#" onClick={(e) => { e.preventDefault(); onCrearCuenta(); }}>Crear una</a>

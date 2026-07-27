@@ -10,6 +10,7 @@ function EntrenamientoActivo({ rutinaId, ejercicios, modo, onFinalizar }) {
   const [descanso, setDescanso] = useState(60);
   const [corriendo, setCorriendo] = useState(false);
   const [rondaActual, setRondaActual] = useState(1);
+  const [mostrarPostura, setMostrarPostura] = useState(false);
   const timerRef = useRef(null);
   const audioCtxRef = useRef(null);
 
@@ -36,6 +37,38 @@ function EntrenamientoActivo({ rutinaId, ejercicios, modo, onFinalizar }) {
     } catch (e) {}
   };
 
+  const getPostura = (nombre) => {
+    const n = nombre.toLowerCase();
+    if (n.includes('sentadilla')) return 'Pies al ancho de hombros. Baja como si te sentaras. Espalda recta. Rodillas no sobrepasan los pies.';
+    if (n.includes('flexión') || n.includes('flexion')) return 'Manos al ancho de hombros. Codos a 45°. Baja el pecho al suelo. Cuerpo recto.';
+    if (n.includes('plancha')) return 'Antebrazos en el suelo. Codos bajo los hombros. Cuerpo recto. Abdomen contraído.';
+    if (n.includes('zancada') || n.includes('lunge')) return 'Paso adelante. Rodilla delantera a 90°. Torso erguido.';
+    if (n.includes('jumping') || n.includes('jack')) return 'De pie, salta abriendo piernas y subiendo brazos. Vuelve a posición inicial.';
+    if (n.includes('curl')) return 'Codos pegados al cuerpo. Sube el peso controladamente. Baja lento.';
+    if (n.includes('fondos')) return 'Manos en la silla. Codos hacia atrás. Baja controladamente.';
+    if (n.includes('dominada')) return 'Agarre en la barra. Sube hasta que la barbilla pase la barra. No balancearse.';
+    if (n.includes('burpee')) return 'Sentadilla, plancha, flexión, vuelve a sentadilla y salta.';
+    if (n.includes('peso muerto')) return 'Espalda recta. Barra cerca del cuerpo. Levanta con piernas.';
+    if (n.includes('hip thrust')) return 'Espalda en banco. Barra sobre caderas. Empuja hacia arriba.';
+    if (n.includes('remo')) return 'Espalda recta. Tira con los codos hacia atrás.';
+    if (n.includes('press')) return 'Empuja el peso hacia arriba. Controla la bajada.';
+    if (n.includes('elevación') || n.includes('elevacion')) return 'Movimiento controlado. Sube y baja lentamente.';
+    if (n.includes('estiramiento')) return 'Mantén la posición 20-30 segundos. No rebotes. Respira.';
+    if (n.includes('círculo') || n.includes('circulo')) return 'Movimiento amplio y controlado. No uses impulso.';
+    if (n.includes('abducción') || n.includes('abduccion')) return 'Acostado de lado. Eleva la pierna superior. Cadera alineada.';
+    if (n.includes('patada')) return 'En cuatro patas. Eleva la pierna flexionada. Espalda recta.';
+    if (n.includes('puente')) return 'Boca arriba. Eleva la cadera apretando glúteos.';
+    if (n.includes('skater') || n.includes('skater')) return 'Salta lateralmente. Aterriza suave. Alterna piernas.';
+    if (n.includes('bear crawl')) return 'En cuatro patas. Avanza moviendo brazo y pierna opuestos.';
+    if (n.includes('high knee')) return 'Rodillas al pecho en el sitio. Brazos acompañan el movimiento.';
+    if (n.includes('tuck jump')) return 'Salta llevando rodillas al pecho. Amortigua la caída.';
+    if (n.includes('escalador') || n.includes('mountain')) return 'En plancha. Lleva rodillas al pecho alternando rápido.';
+    if (n.includes('dead bug')) return 'Boca arriba. Extiende brazo y pierna opuestos. Espalda pegada al suelo.';
+    if (n.includes('russian twist')) return 'Sentado, gira el torso de lado a lado. Piernas elevadas.';
+    if (n.includes('v-up')) return 'Boca arriba. Eleva piernas y torso a la vez. Forma una V.';
+    return 'Mantén una postura correcta. Respira al hacer el movimiento. No hagas movimientos bruscos.';
+  };
+
   useEffect(() => {
     iniciarEntrenamiento();
     return () => clearInterval(timerRef.current);
@@ -53,8 +86,8 @@ function EntrenamientoActivo({ rutinaId, ejercicios, modo, onFinalizar }) {
     }
   };
 
-  // Lógica para ejecutar un ejercicio en modo circuito
   const ejecutarCircuito = (idx) => {
+    setMostrarPostura(false);
     const ej = ejercicios[idx];
     const duracion = ej.duracion_segundos || ej.repeticiones_planificadas * 3;
     setTiempo(duracion);
@@ -63,7 +96,6 @@ function EntrenamientoActivo({ rutinaId, ejercicios, modo, onFinalizar }) {
 
     timerRef.current = setInterval(() => {
       setTiempo((prev) => {
-        // Beep de aviso a los 3 segundos
         if (prev === 4) playBeep(600, 0.15, 0.2);
         
         if (prev <= 1) {
@@ -71,10 +103,8 @@ function EntrenamientoActivo({ rutinaId, ejercicios, modo, onFinalizar }) {
           playBeep(800, 0.3, 0.3);
 
           if (idx < ejercicios.length - 1) {
-            // Pasar automáticamente al siguiente
             ejecutarCircuito(idx + 1);
           } else {
-            // Último ejercicio de la ronda
             setCorriendo(false);
             if (rondaActual < totalRondas) {
               setFase('descanso_ronda');
@@ -91,12 +121,12 @@ function EntrenamientoActivo({ rutinaId, ejercicios, modo, onFinalizar }) {
   };
 
   const iniciarEjercicio = () => {
+    setMostrarPostura(false);
     if (esCircuito) {
       ejecutarCircuito(ejercicioActual);
       return;
     }
 
-    // Modo normal
     playBeep();
     setCorriendo(true);
     setFase('ejercicio');
@@ -258,6 +288,30 @@ function EntrenamientoActivo({ rutinaId, ejercicios, modo, onFinalizar }) {
           }
           {ej.peso_sugerido_kg ? ` con ${ej.peso_sugerido_kg}kg` : ''}
         </p>
+
+        {/* Botón de postura */}
+        <button 
+          onClick={() => setMostrarPostura(!mostrarPostura)} 
+          style={{ 
+            background: 'none', border: '1px solid #2196F3', color: '#2196F3', 
+            padding: '5px 15px', borderRadius: 20, cursor: 'pointer', fontSize: 14, marginBottom: 10 
+          }}
+        >
+          📐 ¿Cómo se hace?
+        </button>
+
+        {mostrarPostura && (
+          <div style={{ background: '#e3f2fd', padding: 15, borderRadius: 12, marginTop: 10, textAlign: 'left' }}>
+            <h4>📐 Postura correcta</h4>
+            <p>{getPostura(ej.ejercicio_nombre)}</p>
+            {ej.advertencia_lesion && (
+              <p style={{ color: '#e65100', marginTop: 8 }}>⚠️ {ej.advertencia_lesion}</p>
+            )}
+            {ej.version_facilitada && (
+              <p style={{ color: '#2e7d32', marginTop: 8 }}>💡 Más fácil: {ej.version_facilitada}</p>
+            )}
+          </div>
+        )}
 
         {/* EJERCICIO */}
         {fase === 'ejercicio' && !corriendo && (

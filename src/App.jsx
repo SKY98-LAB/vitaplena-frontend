@@ -7,6 +7,8 @@ import Alimentacion from './pages/Alimentacion';
 import Corporal from './pages/Corporal';
 import Bienestar from './pages/Bienestar';
 import Rutinas from './pages/Rutinas';
+import AuthCallback from './pages/AuthCallback';
+
 
 function App() {
   const [usuario, setUsuario] = useState(() => {
@@ -33,7 +35,10 @@ function App() {
   };
 
   if (!usuario) {
-    if (mostrarRegistro) {
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    return <AuthCallback onLogin={handleLogin} />;
+  }
+  if (mostrarRegistro) {
       return <Registro onRegistrado={handleRegistrado} onVolver={() => setMostrarRegistro(false)} />;
     }
     return <Login onLogin={handleLogin} onCrearCuenta={() => setMostrarRegistro(true)} />;

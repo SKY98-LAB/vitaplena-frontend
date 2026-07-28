@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import EntrenamientoActivo from './EntrenamientoActivo';
+import PremiumLock from '../components/PremiumLock';
 
 const ejercicioIconos = {
   pecho: '🦾', espalda: '🔙', cuadriceps: '🦵', femorales: '🦵',
@@ -20,8 +21,12 @@ function Rutinas() {
   const [entrenando, setEntrenando] = useState(false);
   const [rutinaActiva, setRutinaActiva] = useState(null);
   const [modo, setModo] = useState('normal');
+  const [rutinasHoy, setRutinasHoy] = useState(0);
 
-  useEffect(() => { cargarRutinas(); }, []);
+  useEffect(() => {
+    cargarRutinas();
+    cargarLimite();
+  }, []);
 
   const cargarRutinas = async () => {
     try {
@@ -30,6 +35,13 @@ function Rutinas() {
     } catch (err) {
       console.error('Error al cargar rutinas');
     }
+  };
+
+  const cargarLimite = async () => {
+    try {
+      const res = await api.get('/usuarios/rutinas-hoy');
+      setRutinasHoy(res.data.rutinas_hoy || 0);
+    } catch (err) {}
   };
 
   const verRutina = async (id) => {
@@ -42,7 +54,22 @@ function Rutinas() {
     }
   };
 
+  const puedeCrearRutina = async () => {
+    try {
+      const res = await api.get('/usuarios/suscripcion');
+      const esPremium = res.data.suscripcion?.estado === 'activo';
+      if (!esPremium && rutinasHoy >= 3) {
+        alert('⚠️ Límite alcanzado: 3 rutinas gratis por día. ¡Hazte PREMIUM para crear ilimitadas!');
+        return false;
+      }
+      return true;
+    } catch (err) {
+      return true;
+    }
+  };
+
   const generarRutina = async () => {
+    if (!(await puedeCrearRutina())) return;
     try {
       await api.post('/generador/rutina', {
         grupo_muscular: grupoMuscular,
@@ -53,8 +80,14 @@ function Rutinas() {
       alert('✅ Rutina generada con éxito!');
       setMostrarGenerador(false);
       cargarRutinas();
+      cargarLimite();
     } catch (err) {
-      alert('Error al generar rutina');
+      const msg = err.response?.data?.error;
+      if (err.response?.status === 403 || err.response?.data?.limite) {
+        alert(msg || '⚠️ Límite de rutinas gratis alcanzado.');
+      } else {
+        alert('Error al generar rutina');
+      }
     }
   };
 
@@ -90,6 +123,7 @@ function Rutinas() {
       <div className="card" style={{ background: 'linear-gradient(135deg, #FF9800, #F57C00)', color: 'white' }}>
         <h3>🤖 Generador Automático</h3>
         <p>Selecciona tus preferencias y genera una rutina personalizada</p>
+        <p style={{ fontSize: 12, opacity: 0.8 }}>Rutinas hoy: {rutinasHoy}/3</p>
         <button onClick={() => setMostrarGenerador(!mostrarGenerador)} className="btn btn-warning" style={{ background: 'white', color: '#FF9800' }}>
           ⚡ {mostrarGenerador ? 'Cancelar' : 'Generar Rutina'}
         </button>

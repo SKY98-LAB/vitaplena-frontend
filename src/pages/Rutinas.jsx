@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import EntrenamientoActivo from './EntrenamientoActivo';
-import PremiumLock from '../components/PremiumLock';
 
 const ejercicioIconos = {
   pecho: '🦾', espalda: '🔙', cuadriceps: '🦵', femorales: '🦵',
@@ -22,6 +21,7 @@ function Rutinas() {
   const [rutinaActiva, setRutinaActiva] = useState(null);
   const [modo, setModo] = useState('normal');
   const [rutinasHoy, setRutinasHoy] = useState(0);
+  const [objetivo, setObjetivo] = useState('hipertrofia');
 
   useEffect(() => {
     cargarRutinas();
@@ -75,7 +75,7 @@ function Rutinas() {
         grupo_muscular: grupoMuscular,
         entorno: entorno,
         nivel: nivel,
-        objetivo: modo === 'circuito' ? 'circuito' : 'fuerza'
+        objetivo: objetivo  // <-- CORREGIDO: ahora usa el estado objetivo
       });
       alert('✅ Rutina generada con éxito!');
       setMostrarGenerador(false);
@@ -152,6 +152,11 @@ function Rutinas() {
             <option value="principiante">Principiante</option>
             <option value="intermedio">Intermedio</option>
             <option value="avanzado">Avanzado</option>
+          </select>
+          <select value={objetivo} onChange={(e) => setObjetivo(e.target.value)} className="input">
+            <option value="hipertrofia">🏋️ Hipertrofia (3x10)</option>
+            <option value="fuerza">💪 Fuerza (4x6)</option>
+            <option value="resistencia">🏃 Resistencia (2x18)</option>
           </select>
           <select value={modo} onChange={(e) => setModo(e.target.value)} className="input">
             <option value="normal">Normal (series por ejercicio)</option>

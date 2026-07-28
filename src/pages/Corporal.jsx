@@ -54,17 +54,17 @@ function Corporal() {
       alert('Error al guardar');
     }
   };
-// Busca la línea antes del return y añade:
-const pesoMin = registros.length > 0 ? Math.min(...registros.map(r => parseFloat(r.peso_kg))) - 2 : 0;
-const pesoMax = registros.length > 0 ? Math.max(...registros.map(r => parseFloat(r.peso_kg))) + 2 : 100;
+
+  const pesoMin = registros.length > 0 ? Math.min(...registros.map(r => parseFloat(r.peso_kg))) - 2 : 0;
+  const pesoMax = registros.length > 0 ? Math.max(...registros.map(r => parseFloat(r.peso_kg))) + 2 : 100;
+
   return (
-    <div style={{ padding: 20 }}>
+    <div>
       <h2>📏 Registro Corporal</h2>
 
       {/* Resumen con IMC */}
-      <GraficosProgreso />
       {resumen && (
-        <div style={{ background: '#e8eaf6', padding: 20, borderRadius: 10, marginBottom: 20, textAlign: 'center' }}>
+        <div className="card" style={{ background: '#e8eaf6', textAlign: 'center' }}>
           <h3>📊 Tu resumen</h3>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 30 }}>
             <div>
@@ -83,77 +83,83 @@ const pesoMax = registros.length > 0 ? Math.max(...registros.map(r => parseFloat
           </div>
         </div>
       )}
-{/* Gráfico simple de peso */}
-{registros.length >= 2 && (
-  <div className="card">
-    <h3>📈 Evolución de Peso</h3>
-    <div style={{ display: 'flex', alignItems: 'end', gap: 8, height: 150, padding: '10px 0' }}>
-      {[...registros].reverse().map((r, i) => {
-        const altura = ((parseFloat(r.peso_kg) - pesoMin) / (pesoMax - pesoMin)) * 100;
-        return (
-          <div key={i} style={{ flex: 1, textAlign: 'center' }}>
-            <div style={{
-              height: `${altura}%`,
-              background: 'linear-gradient(to top, #2196F3, #64B5F6)',
-              borderRadius: '8px 8px 0 0',
-              minHeight: 20,
-              transition: 'height 0.5s'
-            }}></div>
-            <small style={{ fontSize: 10 }}>{new Date(r.fecha).toLocaleDateString('es', {day:'numeric', month:'short'})}</small>
-            <br/>
-            <small style={{ fontWeight: 'bold' }}>{r.peso_kg}</small>
+
+      {/* Gráficos de progreso con Chart.js */}
+      <GraficosProgreso />
+
+      {/* Gráfico simple de barras de peso */}
+      {registros.length >= 2 && (
+        <div className="card">
+          <h3>📈 Evolución de Peso</h3>
+          <div style={{ display: 'flex', alignItems: 'end', gap: 8, height: 150, padding: '10px 0' }}>
+            {[...registros].reverse().map((r, i) => {
+              const altura = ((parseFloat(r.peso_kg) - pesoMin) / (pesoMax - pesoMin)) * 100;
+              return (
+                <div key={i} style={{ flex: 1, textAlign: 'center' }}>
+                  <div style={{
+                    height: `${altura}%`,
+                    background: 'linear-gradient(to top, #2196F3, #64B5F6)',
+                    borderRadius: '8px 8px 0 0',
+                    minHeight: 20,
+                    transition: 'height 0.5s'
+                  }}></div>
+                  <small style={{ fontSize: 10 }}>{new Date(r.fecha).toLocaleDateString('es', {day:'numeric', month:'short'})}</small>
+                  <br/>
+                  <small style={{ fontWeight: 'bold' }}>{r.peso_kg}</small>
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
-    </div>
-  </div>
-)}
+        </div>
+      )}
+
       {/* Botón nuevo registro */}
       <button
         onClick={() => setMostrarForm(!mostrarForm)}
-        style={{ padding: 12, background: '#4CAF50', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', marginBottom: 20, fontSize: 16 }}
+        className="btn btn-success"
+        style={{ marginBottom: 20, fontSize: 16 }}
       >
         {mostrarForm ? 'Cancelar' : '+ Nuevo Registro'}
       </button>
 
       {/* Formulario */}
       {mostrarForm && (
-        <div style={{ background: '#f9f9f9', padding: 20, borderRadius: 10, marginBottom: 20 }}>
+        <div className="card">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <div>
               <label>Fecha</label>
-              <input type="date" value={form.fecha} onChange={(e) => setForm({...form, fecha: e.target.value})} style={{ width: '100%', padding: 8 }} />
+              <input type="date" value={form.fecha} onChange={(e) => setForm({...form, fecha: e.target.value})} className="input" />
             </div>
             <div>
               <label>Peso (kg) *</label>
-              <input type="number" step="0.1" placeholder="Ej: 70.5" value={form.peso_kg} onChange={(e) => setForm({...form, peso_kg: e.target.value})} style={{ width: '100%', padding: 8 }} />
+              <input type="number" step="0.1" placeholder="Ej: 70.5" value={form.peso_kg} onChange={(e) => setForm({...form, peso_kg: e.target.value})} className="input" />
             </div>
             <div>
               <label>Cintura (cm)</label>
-              <input type="number" step="0.1" value={form.cintura_cm} onChange={(e) => setForm({...form, cintura_cm: e.target.value})} style={{ width: '100%', padding: 8 }} />
+              <input type="number" step="0.1" value={form.cintura_cm} onChange={(e) => setForm({...form, cintura_cm: e.target.value})} className="input" />
             </div>
             <div>
               <label>Cadera (cm)</label>
-              <input type="number" step="0.1" value={form.cadera_cm} onChange={(e) => setForm({...form, cadera_cm: e.target.value})} style={{ width: '100%', padding: 8 }} />
+              <input type="number" step="0.1" value={form.cadera_cm} onChange={(e) => setForm({...form, cadera_cm: e.target.value})} className="input" />
             </div>
             <div>
               <label>Pecho (cm)</label>
-              <input type="number" step="0.1" value={form.pecho_cm} onChange={(e) => setForm({...form, pecho_cm: e.target.value})} style={{ width: '100%', padding: 8 }} />
+              <input type="number" step="0.1" value={form.pecho_cm} onChange={(e) => setForm({...form, pecho_cm: e.target.value})} className="input" />
             </div>
             <div>
               <label>Brazo (cm)</label>
-              <input type="number" step="0.1" value={form.brazo_cm} onChange={(e) => setForm({...form, brazo_cm: e.target.value})} style={{ width: '100%', padding: 8 }} />
+              <input type="number" step="0.1" value={form.brazo_cm} onChange={(e) => setForm({...form, brazo_cm: e.target.value})} className="input" />
             </div>
             <div>
               <label>Muslo (cm)</label>
-              <input type="number" step="0.1" value={form.muslo_cm} onChange={(e) => setForm({...form, muslo_cm: e.target.value})} style={{ width: '100%', padding: 8 }} />
+              <input type="number" step="0.1" value={form.muslo_cm} onChange={(e) => setForm({...form, muslo_cm: e.target.value})} className="input" />
             </div>
             <div>
               <label>Notas</label>
-              <input type="text" placeholder="Ej: En ayunas" value={form.notas} onChange={(e) => setForm({...form, notas: e.target.value})} style={{ width: '100%', padding: 8 }} />
+              <input type="text" placeholder="Ej: En ayunas" value={form.notas} onChange={(e) => setForm({...form, notas: e.target.value})} className="input" />
             </div>
           </div>
-          <button onClick={guardarRegistro} style={{ marginTop: 15, padding: 12, background: '#2196F3', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', width: '100%', fontSize: 16 }}>
+          <button onClick={guardarRegistro} className="btn btn-primary" style={{ marginTop: 15, width: '100%', fontSize: 16 }}>
             💾 Guardar Registro
           </button>
         </div>
@@ -162,7 +168,7 @@ const pesoMax = registros.length > 0 ? Math.max(...registros.map(r => parseFloat
       {/* Historial */}
       <h3>📋 Historial</h3>
       {registros.map((r) => (
-        <div key={r.id} style={{ border: '1px solid #ddd', borderRadius: 10, padding: 15, marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div key={r.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <strong>{new Date(r.fecha).toLocaleDateString()}</strong>
             <p>⚖️ {r.peso_kg} kg {r.cintura_cm && `| 📏 Cintura: ${r.cintura_cm}cm`}</p>

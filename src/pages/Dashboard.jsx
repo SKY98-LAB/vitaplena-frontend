@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import PremiumBanner from '../components/PremiumBanner';
 
 function Dashboard({ usuario, onNavigate }) {
   const [resumen, setResumen] = useState(null);
@@ -35,9 +36,9 @@ function Dashboard({ usuario, onNavigate }) {
   };
 
   const opciones = [
-    { id: 'ejercicios', icon: '🏋️', label: 'Ejercicios', color: '#2196F3', desc: '81 ejercicios' },
+    { id: 'ejercicios', icon: '🏋️', label: 'Ejercicios', color: '#2196F3', desc: '108 ejercicios' },
     { id: 'rutinas', icon: '📋', label: 'Rutinas', color: '#FF9800', desc: 'Entrena ya' },
-    { id: 'alimentacion', icon: '🍎', label: 'Comidas', color: '#4CAF50', desc: '155 alimentos' },
+    { id: 'alimentacion', icon: '🍎', label: 'Comidas', color: '#4CAF50', desc: '111 alimentos' },
     { id: 'corporal', icon: '📏', label: 'Cuerpo', color: '#9C27B0', desc: 'Peso e IMC' },
     { id: 'sueno', icon: '😴', label: 'Sueño', color: '#607D8B', desc: 'Descanso' },
     { id: 'sueno', icon: '💧', label: 'Agua', color: '#00BCD4', desc: 'Hidratación' },
@@ -53,6 +54,9 @@ function Dashboard({ usuario, onNavigate }) {
           </p>
         )}
       </div>
+
+      {/* Banner PREMIUM */}
+      <PremiumBanner />
 
       {resumen && (
         <div className="card">

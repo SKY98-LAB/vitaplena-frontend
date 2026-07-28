@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import GraficosProgreso from '../components/GraficosProgreso';
 
 function Corporal() {
   const [registros, setRegistros] = useState([]);
@@ -61,6 +62,7 @@ const pesoMax = registros.length > 0 ? Math.max(...registros.map(r => parseFloat
       <h2>📏 Registro Corporal</h2>
 
       {/* Resumen con IMC */}
+      <GraficosProgreso />
       {resumen && (
         <div style={{ background: '#e8eaf6', padding: 20, borderRadius: 10, marginBottom: 20, textAlign: 'center' }}>
           <h3>📊 Tu resumen</h3>

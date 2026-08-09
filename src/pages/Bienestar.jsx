@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { showAlert } from '../services/platform';
+import useResumenHoy from '../hooks/useResumenHoy';
 
 function Bienestar() {
+  const { datos, recargar } = useResumenHoy(['sueno', 'hidratacion']);
   const [sueno, setSueno] = useState([]);
-  const [resumenSueno, setResumenSueno] = useState(null);
-  const [hidratacion, setHidratacion] = useState(null);
   const [mostrarSueno, setMostrarSueno] = useState(false);
+  const resumenSueno = datos?.sueno;
+  const hidratacion = datos?.hidratacion;
   const [mostrarAgua, setMostrarAgua] = useState(false);
   const [formSueno, setFormSueno] = useState({
     fecha: new Date().toISOString().split('T')[0],
@@ -18,19 +21,13 @@ function Bienestar() {
   const [cantidadAgua, setCantidadAgua] = useState(250);
 
   useEffect(() => {
-    cargarDatos();
+    cargarRegistrosSueno();
   }, []);
 
-  const cargarDatos = async () => {
+  const cargarRegistrosSueno = async () => {
     try {
-      const [resSueno, resResumen, resAgua] = await Promise.all([
-        api.get('/bienestar/sueno?limite=7'),
-        api.get('/bienestar/sueno/resumen'),
-        api.get('/bienestar/hidratacion')
-      ]);
-      setSueno(resSueno.data.registros);
-      setResumenSueno(resResumen.data);
-      setHidratacion(resAgua.data);
+      const res = await api.get('/bienestar/sueno?limite=7');
+      setSueno(res.data.registros);
     } catch (err) {
       console.error('Error al cargar datos');
     }
@@ -39,22 +36,24 @@ function Bienestar() {
   const guardarSueno = async () => {
     try {
       await api.post('/bienestar/sueno', formSueno);
-      alert('Sueño registrado!');
+      showAlert('Sueño registrado!');
       setMostrarSueno(false);
-      cargarDatos();
+      recargar();
+      cargarRegistrosSueno();
     } catch (err) {
-      alert('Error al guardar');
+      showAlert('Error al guardar');
     }
   };
 
   const registrarAgua = async () => {
     try {
       await api.post('/bienestar/hidratacion', { cantidad_ml: cantidadAgua, tipo_bebida: 'agua' });
-      alert('Agua registrada!');
+      showAlert('Agua registrada!');
       setMostrarAgua(false);
-      cargarDatos();
+      recargar();
+      cargarRegistrosSueno();
     } catch (err) {
-      alert('Error al registrar');
+      showAlert('Error al registrar');
     }
   };
 

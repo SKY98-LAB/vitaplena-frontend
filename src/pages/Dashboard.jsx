@@ -1,39 +1,22 @@
-import { useState, useEffect } from 'react';
-import api from '../services/api';
 import PremiumBanner from '../components/PremiumBanner';
+import useResumenHoy from '../hooks/useResumenHoy';
 
 function Dashboard({ usuario, onNavigate }) {
-  const [resumen, setResumen] = useState(null);
+  const { datos } = useResumenHoy();
 
-  useEffect(() => {
-    cargarResumen();
-  }, []);
-
-  const cargarResumen = async () => {
-    try {
-      const [comidas, corporal, sueno, agua] = await Promise.all([
-        api.get('/alimentacion/comidas'),
-        api.get('/registros/corporal/resumen'),
-        api.get('/bienestar/sueno/resumen'),
-        api.get('/bienestar/hidratacion')
-      ]);
-      setResumen({
-        calorias: comidas.data.totales?.calorias || 0,
-        proteinas: comidas.data.totales?.proteinas || 0,
-        imc: corporal.data.imc || '--',
-        clasificacion: corporal.data.clasificacion_imc || '',
-        peso: corporal.data.ultimo_registro?.peso_kg || '--',
-        sueno: sueno.data.promedio_horas || '--',
-        calidad: sueno.data.promedio_calidad || '--',
-        agua: agua.data.total_ml || 0,
-        aguaMeta: agua.data.recomendacion_ml || 2500,
-        aguaPct: agua.data.porcentaje_cubierto || 0,
-        consejo: sueno.data.consejo_del_dia || ''
-      });
-    } catch (err) {
-      console.error('Error al cargar resumen');
-    }
-  };
+  const resumen = datos ? {
+    calorias: datos.comidas?.totales?.calorias || 0,
+    proteinas: datos.comidas?.totales?.proteinas || 0,
+    imc: datos.corporal?.imc || '--',
+    clasificacion: datos.corporal?.clasificacion_imc || '',
+    peso: datos.corporal?.ultimo_registro?.peso_kg || '--',
+    sueno: datos.sueno?.promedio_horas || '--',
+    calidad: datos.sueno?.promedio_calidad || '--',
+    agua: datos.hidratacion?.total_ml || 0,
+    aguaMeta: datos.hidratacion?.recomendacion_ml || 2500,
+    aguaPct: datos.hidratacion?.porcentaje_cubierto || 0,
+    consejo: datos.sueno?.consejo_del_dia || ''
+  } : null;
 
   const opciones = [
     { id: 'ejercicios', icon: '🏋️', label: 'Ejercicios', color: '#2196F3', desc: '108 ejercicios' },

@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react';
+import { AuthProvider } from './contexts/AuthContext';
+import useAuth from './hooks/useAuth';
+import storage from './services/storage';
+import { getHash } from './services/platform';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
@@ -9,39 +13,35 @@ import Bienestar from './pages/Bienestar';
 import Rutinas from './pages/Rutinas';
 import AuthCallback from './pages/AuthCallback';
 
-
-function App() {
-  const [usuario, setUsuario] = useState(() => {
-    const saved = localStorage.getItem('usuario');
-    return saved ? JSON.parse(saved) : null;
-  });
+function AppContent() {
+  const { usuario, loading, logout } = useAuth();
   const [pagina, setPagina] = useState('dashboard');
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('darkMode') === 'true';
+    return storage.getItem('darkMode') === 'true';
   });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-    localStorage.setItem('darkMode', darkMode);
+    storage.setItem('darkMode', darkMode);
   }, [darkMode]);
 
-  const handleLogin = (user) => setUsuario(user);
-  const handleRegistrado = (user) => { setUsuario(user); setMostrarRegistro(false); };
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    setUsuario(null);
-  };
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: 50 }}>
+        <h2>Cargando...</h2>
+      </div>
+    );
+  }
 
   if (!usuario) {
-  if (window.location.hash && window.location.hash.includes('access_token')) {
-    return <AuthCallback onLogin={handleLogin} />;
-  }
-  if (mostrarRegistro) {
-      return <Registro onRegistrado={handleRegistrado} onVolver={() => setMostrarRegistro(false)} />;
+    if (getHash() && getHash().includes('access_token')) {
+      return <AuthCallback />;
     }
-    return <Login onLogin={handleLogin} onCrearCuenta={() => setMostrarRegistro(true)} />;
+    if (mostrarRegistro) {
+      return <Registro onVolver={() => setMostrarRegistro(false)} />;
+    }
+    return <Login onCrearCuenta={() => setMostrarRegistro(true)} />;
   }
 
   const paginas = [
@@ -62,7 +62,7 @@ function App() {
             {darkMode ? '☀️' : '🌙'}
           </button>
           <span style={{ fontSize: 14 }}>{usuario.nombre}</span>
-          <button onClick={handleLogout}>Salir</button>
+          <button onClick={logout}>Salir</button>
         </div>
       </div>
       <div className="nav">
@@ -86,6 +86,14 @@ function App() {
         {pagina === 'sueno' && <Bienestar />}
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

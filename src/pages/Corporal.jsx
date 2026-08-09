@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import GraficosProgreso from '../components/GraficosProgreso';
+import { showAlert } from '../services/platform';
+import useResumenHoy from '../hooks/useResumenHoy';
+import FormularioCorporal from '../modules/corporal/components/FormularioCorporal';
+import HistorialCorporal from '../modules/corporal/components/HistorialCorporal';
 
 function Corporal() {
+  const { datos, recargar } = useResumenHoy(['corporal']);
   const [registros, setRegistros] = useState([]);
-  const [resumen, setResumen] = useState(null);
   const [mostrarForm, setMostrarForm] = useState(false);
+  const resumen = datos?.corporal;
   const [form, setForm] = useState({
     fecha: new Date().toISOString().split('T')[0],
     peso_kg: '',
@@ -18,24 +23,20 @@ function Corporal() {
   });
 
   useEffect(() => {
-    cargarDatos();
+    cargarRegistros();
   }, []);
 
-  const cargarDatos = async () => {
+  const cargarRegistros = async () => {
     try {
-      const [resRegistros, resResumen] = await Promise.all([
-        api.get('/registros/corporal?limite=10'),
-        api.get('/registros/corporal/resumen')
-      ]);
-      setRegistros(resRegistros.data.registros);
-      setResumen(resResumen.data);
+      const res = await api.get('/registros/corporal?limite=10');
+      setRegistros(res.data.registros);
     } catch (err) {
       console.error('Error al cargar datos corporales');
     }
   };
 
   const guardarRegistro = async () => {
-    if (!form.peso_kg) return alert('El peso es obligatorio');
+    if (!form.peso_kg) return showAlert('El peso es obligatorio');
     try {
       await api.post('/registros/corporal', {
         fecha: form.fecha,
@@ -47,11 +48,12 @@ function Corporal() {
         muslo_cm: form.muslo_cm ? parseFloat(form.muslo_cm) : null,
         notas: form.notas
       });
-      alert('Registro guardado!');
+      showAlert('Registro guardado!');
       setMostrarForm(false);
-      cargarDatos();
+      cargarRegistros();
+      recargar();
     } catch (err) {
-      alert('Error al guardar');
+      showAlert('Error al guardar');
     }
   };
 
@@ -123,59 +125,10 @@ function Corporal() {
       </button>
 
       {/* Formulario */}
-      {mostrarForm && (
-        <div className="card">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <div>
-              <label>Fecha</label>
-              <input type="date" value={form.fecha} onChange={(e) => setForm({...form, fecha: e.target.value})} className="input" />
-            </div>
-            <div>
-              <label>Peso (kg) *</label>
-              <input type="number" step="0.1" placeholder="Ej: 70.5" value={form.peso_kg} onChange={(e) => setForm({...form, peso_kg: e.target.value})} className="input" />
-            </div>
-            <div>
-              <label>Cintura (cm)</label>
-              <input type="number" step="0.1" value={form.cintura_cm} onChange={(e) => setForm({...form, cintura_cm: e.target.value})} className="input" />
-            </div>
-            <div>
-              <label>Cadera (cm)</label>
-              <input type="number" step="0.1" value={form.cadera_cm} onChange={(e) => setForm({...form, cadera_cm: e.target.value})} className="input" />
-            </div>
-            <div>
-              <label>Pecho (cm)</label>
-              <input type="number" step="0.1" value={form.pecho_cm} onChange={(e) => setForm({...form, pecho_cm: e.target.value})} className="input" />
-            </div>
-            <div>
-              <label>Brazo (cm)</label>
-              <input type="number" step="0.1" value={form.brazo_cm} onChange={(e) => setForm({...form, brazo_cm: e.target.value})} className="input" />
-            </div>
-            <div>
-              <label>Muslo (cm)</label>
-              <input type="number" step="0.1" value={form.muslo_cm} onChange={(e) => setForm({...form, muslo_cm: e.target.value})} className="input" />
-            </div>
-            <div>
-              <label>Notas</label>
-              <input type="text" placeholder="Ej: En ayunas" value={form.notas} onChange={(e) => setForm({...form, notas: e.target.value})} className="input" />
-            </div>
-          </div>
-          <button onClick={guardarRegistro} className="btn btn-primary" style={{ marginTop: 15, width: '100%', fontSize: 16 }}>
-            💾 Guardar Registro
-          </button>
-        </div>
-      )}
+      {mostrarForm && <FormularioCorporal form={form} setForm={setForm} onGuardar={guardarRegistro} />}
 
       {/* Historial */}
-      <h3>📋 Historial</h3>
-      {registros.map((r) => (
-        <div key={r.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <strong>{new Date(r.fecha).toLocaleDateString()}</strong>
-            <p>⚖️ {r.peso_kg} kg {r.cintura_cm && `| 📏 Cintura: ${r.cintura_cm}cm`}</p>
-            {r.notas && <small>{r.notas}</small>}
-          </div>
-        </div>
-      ))}
+      <HistorialCorporal registros={registros} />
     </div>
   );
 }

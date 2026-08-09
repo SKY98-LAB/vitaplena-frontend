@@ -1,27 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import api from '../services/api';
+import { showAlert } from '../services/platform';
+import useResumenHoy from '../hooks/useResumenHoy';
+import ComidaCard from '../modules/alimentacion/components/ComidaCard';
+import FormularioComida from '../modules/alimentacion/components/FormularioComida';
 
 function Alimentacion() {
+  const { datos, recargar } = useResumenHoy(['comidas']);
   const [alimentos, setAlimentos] = useState([]);
   const [busqueda, setBusqueda] = useState('');
-  const [comidas, setComidas] = useState([]);
-  const [totales, setTotales] = useState({});
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [alimentoSeleccionado, setAlimentoSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(100);
   const [tipoComida, setTipoComida] = useState('almuerzo');
-
-  useEffect(() => { cargarComidas(); }, []);
-
-  const cargarComidas = async () => {
-    try {
-      const res = await api.get('/alimentacion/comidas');
-      setComidas(res.data.comidas);
-      setTotales(res.data.totales);
-    } catch (err) {
-      console.error('Error al cargar comidas');
-    }
-  };
+  const comidas = datos?.comidas?.comidas ?? [];
+  const totales = datos?.comidas?.totales ?? {};
 
   const buscarAlimentos = async () => {
     if (!busqueda) return;
@@ -41,13 +34,13 @@ function Alimentacion() {
         tipo_comida: tipoComida,
         alimentos: [{ alimento_id: alimentoSeleccionado.id, cantidad_gramos: cantidad }]
       });
-      alert('✅ Comida registrada!');
+      showAlert('✅ Comida registrada!');
       setMostrarRegistro(false);
       setAlimentoSeleccionado(null);
       setCantidad(100);
-      cargarComidas();
+      recargar();
     } catch (err) {
-      alert('Error al registrar comida');
+      showAlert('Error al registrar comida');
     }
   };
 
@@ -94,36 +87,15 @@ function Alimentacion() {
       )}
 
       {mostrarRegistro && alimentoSeleccionado && (
-        <div className="modal" onClick={() => setMostrarRegistro(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>📝 Registrar: {alimentoSeleccionado.nombre}</h3>
-            <p style={{ color: '#888' }}>{alimentoSeleccionado.calorias_por_100g} kcal por 100g</p>
-            <div style={{ margin: '10px 0' }}>
-              <label>Gramos:</label>
-              <input
-                type="number"
-                value={cantidad}
-                onChange={(e) => setCantidad(Number(e.target.value))}
-                className="input"
-                style={{ width: 120 }}
-              />
-              <p style={{ background: '#e8f5e9', padding: 10, borderRadius: 8, marginTop: 8 }}>
-                = {((alimentoSeleccionado.calorias_por_100g * cantidad) / 100).toFixed(0)} kcal,{' '}
-                {((alimentoSeleccionado.proteinas_por_100g * cantidad) / 100).toFixed(1)}g proteína
-              </p>
-            </div>
-            <select value={tipoComida} onChange={(e) => setTipoComida(e.target.value)} className="input">
-              <option value="desayuno">🌅 Desayuno</option>
-              <option value="almuerzo">☀️ Almuerzo</option>
-              <option value="cena">🌙 Cena</option>
-              <option value="snack">🍿 Snack</option>
-            </select>
-            <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
-              <button onClick={registrarComida} className="btn btn-success" style={{ flex: 1 }}>✅ Guardar</button>
-              <button onClick={() => setMostrarRegistro(false)} className="btn btn-danger" style={{ flex: 1 }}>Cancelar</button>
-            </div>
-          </div>
-        </div>
+        <FormularioComida
+          alimento={alimentoSeleccionado}
+          cantidad={cantidad}
+          onCantidad={setCantidad}
+          tipoComida={tipoComida}
+          onTipoComida={setTipoComida}
+          onRegistrar={registrarComida}
+          onCerrar={() => setMostrarRegistro(false)}
+        />
       )}
 
       <div className="card" style={{ background: '#e8f5e9' }}>
@@ -138,23 +110,9 @@ function Alimentacion() {
 
       <h3>📝 Comidas de hoy</h3>
       {comidas.length === 0 && <p style={{ color: '#888' }}>No hay comidas registradas hoy.</p>}
-      {comidas.map((c) => {
-        const iconos = { desayuno: '🌅', almuerzo: '☀️', cena: '🌙', snack: '🍿' };
-        return (
-          <div key={c.id} className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h4>{iconos[c.tipo_comida] || '🍽️'} {c.tipo_comida}</h4>
-              <span className="badge badge-orange">{c.total_calorias} kcal</span>
-            </div>
-            <div style={{ display: 'flex', gap: 15, marginTop: 8 }}>
-              <span>💪 {c.total_proteinas}g</span>
-              <span>🍞 {c.total_carbohidratos}g</span>
-              <span>🧈 {c.total_grasas}g</span>
-            </div>
-            <small style={{ color: '#aaa' }}>{new Date(c.fecha_hora).toLocaleTimeString()}</small>
-          </div>
-        );
-      })}
+      {comidas.map((c) => (
+        <ComidaCard key={c.id} comida={c} />
+      ))}
     </div>
   );
 }

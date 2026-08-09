@@ -1,16 +1,21 @@
 import { useEffect, useState } from 'react';
 import api from '../services/api';
+import env from '../config/env';
+import useAuth from '../hooks/useAuth';
+import { getHash, replaceHash } from '../services/platform';
 
-function AuthCallback({ onLogin }) {
+function AuthCallback() {
+  const { login } = useAuth();
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(true);
   const [necesitaPerfil, setNecesitaPerfil] = useState(false);
+  const [sesionGoogle, setSesionGoogle] = useState(null);
   const [form, setForm] = useState({ peso_kg: '', altura_cm: '', sexo: 'M', objetivo: 'mantenerse_activo' });
 
   useEffect(() => {
     const procesarGoogle = async () => {
       try {
-        const hash = window.location.hash.substring(1);
+        const hash = getHash().substring(1);
         const params = new URLSearchParams(hash);
         const accessToken = params.get('access_token');
 
@@ -20,7 +25,9 @@ function AuthCallback({ onLogin }) {
           return;
         }
 
-        const userRes = await fetch('https://kvbjqetankipzminsfrs.supabase.co/auth/v1/user', {
+        replaceHash();
+
+        const userRes = await fetch(`${env.supabaseUrl}/auth/v1/user`, {
           headers: { Authorization: `Bearer ${accessToken}` }
         });
         const userData = await userRes.json();
@@ -31,14 +38,12 @@ function AuthCallback({ onLogin }) {
           google_id: userData.id
         });
 
-        localStorage.setItem('token', res.data.accessToken);
-        localStorage.setItem('usuario', JSON.stringify(res.data.usuario));
+        setSesionGoogle(res.data);
+        login(res.data);
 
         if (res.data.esNuevo) {
           setNecesitaPerfil(true);
           setCargando(false);
-        } else {
-          onLogin(res.data.usuario);
         }
 
       } catch (err) {
@@ -49,7 +54,7 @@ function AuthCallback({ onLogin }) {
     };
 
     procesarGoogle();
-  }, []);
+  }, [login]);
 
   const guardarPerfil = async () => {
     if (!form.peso_kg || !form.altura_cm) {
@@ -63,8 +68,7 @@ function AuthCallback({ onLogin }) {
         sexo: form.sexo,
         objetivo_principal: form.objetivo
       });
-      const usuario = JSON.parse(localStorage.getItem('usuario'));
-      onLogin(usuario);
+      login({ accessToken: sesionGoogle.accessToken, usuario: sesionGoogle.usuario });
     } catch (err) {
       setError('Error al guardar perfil');
     }

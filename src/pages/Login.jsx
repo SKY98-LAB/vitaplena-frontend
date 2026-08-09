@@ -1,18 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
+import env from '../config/env';
+import useAuth from '../hooks/useAuth';
+import { getHash, replaceHash } from '../services/platform';
 
-function Login({ onLogin, onCrearCuenta }) {
+function Login({ onCrearCuenta }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (getHash().includes('access_token')) {
+      replaceHash();
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await api.post('/usuarios/login', { email, password });
-      localStorage.setItem('token', res.data.accessToken);
-      localStorage.setItem('usuario', JSON.stringify(res.data.usuario));
-      onLogin(res.data.usuario);
+      login(res.data);
     } catch (err) {
       setError('Email o contraseña incorrectos');
     }
@@ -45,7 +53,7 @@ function Login({ onLogin, onCrearCuenta }) {
         </button>
               <p style={{ textAlign: 'center', color: '#888', margin: '15px 0' }}>o</p>
       <a
-        href="https://kvbjqetankipzminsfrs.supabase.co/auth/v1/authorize?provider=google&redirect_to=https://vitaplena-frontend-sa79.vercel.app"
+        href={`${env.supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${env.redirectUrl}`}
         style={{
           display: 'block', textAlign: 'center', padding: 12,
           background: '#fff', color: '#333', border: '1px solid #ddd',

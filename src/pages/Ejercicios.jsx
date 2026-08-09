@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { ICONOS_GRUPO_MUSCULAR, GRUPOS_FILTRO_EJERCICIOS } from '../constants/gruposMusculares';
 
-const posturaIconos = {
-  pecho: '🦾', espalda: '🔙', cuadriceps: '🦵', femorales: '🦵',
-  pantorrillas: '🦶', gluteos: '🍑', hombros: '🙆',
-  biceps: '💪', triceps: '💪', core: '🎯', cardio: '🏃', flexibilidad: '🧘‍♂️',
-  piernas: '🦵', brazos: '💪'
-};
+const posturaIconos = { ...ICONOS_GRUPO_MUSCULAR, cardio: '🏃' };
 
 const posturaDescripcion = {
   sentadilla: 'Pies al ancho de hombros. Baja como si te sentaras. Espalda recta. Rodillas no sobrepasan los pies.',
@@ -62,18 +58,11 @@ function Ejercicios() {
           </select>
           <select value={grupo} onChange={(e) => setGrupo(e.target.value)} className="input" style={{ flex: 1, minWidth: 150 }}>
             <option value="">Todos los grupos</option>
-            <option value="pecho">🦾 Pecho</option>
-            <option value="espalda">🔙 Espalda</option>
-            <option value="cuadriceps">🦵 Cuádriceps</option>
-            <option value="femorales">🦵 Femorales</option>
-            <option value="gluteos">🍑 Glúteos</option>
-            <option value="pantorrillas">🦶 Pantorrillas</option>
-            <option value="hombros">🙆 Hombros</option>
-            <option value="biceps">💪 Bíceps</option>
-            <option value="triceps">💪 Tríceps</option>
-            <option value="core">🎯 Core</option>
-            <option value="cardio">❤️ Cardio</option>
-            <option value="flexibilidad">🧘 Flexibilidad</option>
+            {GRUPOS_FILTRO_EJERCICIOS.map((g) => (
+              <option key={g.valor} value={g.valor}>
+                {g.valor === 'flexibilidad' ? '🧘' : g.icono} {g.etiqueta}
+              </option>
+            ))}
           </select>
         </div>
       </div>

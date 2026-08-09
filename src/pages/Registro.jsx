@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import api from '../services/api';
+import useAuth from '../hooks/useAuth';
 
-function Registro({ onRegistrado, onVolver }) {
+function Registro({ onVolver }) {
+  const { login } = useAuth();
   const [form, setForm] = useState({
     email: '', password: '', nombre: '', apellido: '',
     peso_kg: '', altura_cm: '', sexo: 'M',
@@ -30,9 +32,7 @@ function Registro({ onRegistrado, onVolver }) {
         email: form.email,
         password: form.password
       });
-      localStorage.setItem('token', loginRes.data.accessToken);
-      localStorage.setItem('usuario', JSON.stringify(loginRes.data.usuario));
-      onRegistrado(loginRes.data.usuario);
+      login(loginRes.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al registrarse');
     }

@@ -34,6 +34,9 @@ function AuthCallback({ urlAbierta, onTerminado }) {
         const params = new URLSearchParams(fragmento);
         const accessToken = params.get('access_token');
 
+        console.log('[DEBUG-OAUTH] 1. URL origen:', urlAbierta ? '(deep link)' : window.location.href.slice(0, window.location.href.indexOf('#')));
+        console.log('[DEBUG-OAUTH] 1b. access_token recibido en el fragmento:', Boolean(accessToken), accessToken ? `(${accessToken.slice(0, 12)}... len=${accessToken.length})` : '');
+
         if (!accessToken) {
           setError('No se pudo autenticar con Google');
           setCargando(false);
@@ -43,19 +46,46 @@ function AuthCallback({ urlAbierta, onTerminado }) {
 
         replaceHash();
 
-        const userRes = await fetch(`${env.supabaseUrl}/auth/v1/user`, {
-          headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        const userData = await userRes.json();
+        console.log('[DEBUG-OAUTH] 1c. apikey (VITE_SUPABASE_KEY):', env.supabaseKey ? `presente (${env.supabaseKey.slice(0, 10)}...)` : 'VACIO (no definida en este bundle)');
 
+        const userRes = await fetch(`${env.supabaseUrl}/auth/v1/user`, {
+          headers: {
+            apikey: env.supabaseKey,
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+        console.log('[DEBUG-OAUTH] 2. GET /auth/v1/user status:', userRes.status, 'ok:', userRes.ok);
+        const userData = await userRes.json();
+        console.log('[DEBUG-OAUTH] 2b. userData:', {
+          email: userData.email,
+          id: userData.id,
+          full_name: userData.user_metadata?.full_name,
+          error: userData.error,
+          msg: userData.msg
+        });
+
+        console.log('[DEBUG-OAUTH] 3. Payload POST /usuarios/google:', {
+          email: userData.email,
+          nombre: userData.user_metadata?.full_name || userData.email?.split('@')[0],
+          google_id: userData.id
+        });
         const res = await api.post('/usuarios/google', {
           email: userData.email,
           nombre: userData.user_metadata?.full_name || userData.email?.split('@')[0],
           google_id: userData.id
         });
+        console.log('[DEBUG-OAUTH] 4. POST /usuarios/google status:', res.status);
+        console.log('[DEBUG-OAUTH] 4b. Respuesta backend:', {
+          claves: res.data ? Object.keys(res.data) : null,
+          esNuevo: res.data?.esNuevo,
+          usuario: res.data?.usuario?.email || res.data?.usuario?.id,
+          tieneAccessToken: Boolean(res.data?.accessToken)
+        });
 
         setSesionGoogle(res.data);
+        console.log('[DEBUG-OAUTH] 5. Llamando login(res.data)');
         login(res.data);
+        console.log('[DEBUG-OAUTH] 5b. login() completado sin excepción');
 
         if (res.data.esNuevo) {
           setNecesitaPerfil(true);
@@ -66,7 +96,14 @@ function AuthCallback({ urlAbierta, onTerminado }) {
         }
 
       } catch (err) {
-        console.error('Error:', err);
+        console.error('[DEBUG-OAUTH] 6. Error en procesarGoogle:', err);
+        console.error('[DEBUG-OAUTH] 6b. Detalle error:', {
+          mensaje: err?.message,
+          status: err?.response?.status,
+          data: err?.response?.data,
+          name: err?.name,
+          stack: err?.stack
+        });
         setError('Error al procesar el login');
         setCargando(false);
         await cerrarNativo();
@@ -89,10 +126,13 @@ function AuthCallback({ urlAbierta, onTerminado }) {
         sexo: form.sexo,
         objetivo_principal: form.objetivo
       });
+      console.log('[DEBUG-OAUTH] 7. Perfil guardado OK. Guardando sesión con login()');
       login({ accessToken: sesionGoogle.accessToken, usuario: sesionGoogle.usuario });
+      console.log('[DEBUG-OAUTH] 7b. login() de perfil completado sin excepción');
       await cerrarNativo();
       onTerminado?.();
     } catch (err) {
+      console.error('[DEBUG-OAUTH] 7c. Error guardarPerfil:', err?.message, err?.response?.status, err?.response?.data);
       setError('Error al guardar perfil');
     }
   };

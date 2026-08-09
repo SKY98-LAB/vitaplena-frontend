@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import env from '../config/env';
 import useAuth from '../hooks/useAuth';
-import { getHash, replaceHash } from '../services/platform';
+import { getHash, replaceHash, openUrl, getOAuthRedirectUrl } from '../services/platform';
 
 function Login({ onCrearCuenta }) {
   const { login } = useAuth();
@@ -52,16 +52,17 @@ function Login({ onCrearCuenta }) {
           Entrar
         </button>
               <p style={{ textAlign: 'center', color: '#888', margin: '15px 0' }}>o</p>
-      <a
-        href={`${env.supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${env.redirectUrl}`}
+      <button
+        type="button"
+        onClick={() => openUrl(`${env.supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${getOAuthRedirectUrl()}`)}
         style={{
           display: 'block', textAlign: 'center', padding: 12,
           background: '#fff', color: '#333', border: '1px solid #ddd',
-          borderRadius: 8, textDecoration: 'none', fontWeight: 600, fontSize: 16
+          borderRadius: 8, textDecoration: 'none', fontWeight: 600, fontSize: 16, width: '100%', cursor: 'pointer'
         }}
       >
         🅶 Continuar con Google
-      </a>
+      </button>
       </form>
       <p style={{ textAlign: 'center', marginTop: 20 }}>
         ¿No tienes cuenta? <a href="#" onClick={(e) => { e.preventDefault(); onCrearCuenta(); }}>Crear una</a>

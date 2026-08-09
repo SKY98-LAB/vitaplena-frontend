@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import api from '../services/api';
 import env from '../config/env';
 import useAuth from '../hooks/useAuth';
-import { getHash, replaceHash } from '../services/platform';
+import { cerrarBrowser, replaceHash } from '../services/platform';
 
-function AuthCallback() {
+function AuthCallback({ urlAbierta, onTerminado }) {
   const { login } = useAuth();
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(true);
@@ -12,16 +12,32 @@ function AuthCallback() {
   const [sesionGoogle, setSesionGoogle] = useState(null);
   const [form, setForm] = useState({ peso_kg: '', altura_cm: '', sexo: 'M', objetivo: 'mantenerse_activo' });
 
+  const cerrarNativo = async () => {
+    if (urlAbierta) {
+      await cerrarBrowser();
+    }
+  };
+
+  const volver = async () => {
+    await cerrarNativo();
+    onTerminado?.();
+    if (!urlAbierta) {
+      window.location.href = '/';
+    }
+  };
+
   useEffect(() => {
     const procesarGoogle = async () => {
       try {
-        const hash = getHash().substring(1);
-        const params = new URLSearchParams(hash);
+        const url = urlAbierta || window.location.href;
+        const fragmento = url.slice(url.indexOf('#') + 1);
+        const params = new URLSearchParams(fragmento);
         const accessToken = params.get('access_token');
 
         if (!accessToken) {
           setError('No se pudo autenticar con Google');
           setCargando(false);
+          await cerrarNativo();
           return;
         }
 
@@ -44,16 +60,21 @@ function AuthCallback() {
         if (res.data.esNuevo) {
           setNecesitaPerfil(true);
           setCargando(false);
+        } else {
+          await cerrarNativo();
+          onTerminado?.();
         }
 
       } catch (err) {
         console.error('Error:', err);
         setError('Error al procesar el login');
         setCargando(false);
+        await cerrarNativo();
       }
     };
 
     procesarGoogle();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [login]);
 
   const guardarPerfil = async () => {
@@ -69,6 +90,8 @@ function AuthCallback() {
         objetivo_principal: form.objetivo
       });
       login({ accessToken: sesionGoogle.accessToken, usuario: sesionGoogle.usuario });
+      await cerrarNativo();
+      onTerminado?.();
     } catch (err) {
       setError('Error al guardar perfil');
     }
@@ -109,7 +132,7 @@ function AuthCallback() {
       <div style={{ textAlign: 'center', padding: 50 }}>
         <h2>Error</h2>
         <p>{error}</p>
-        <a href="/">Volver al inicio</a>
+        <button onClick={volver} style={{ padding: 10, cursor: 'pointer' }}>Volver al inicio</button>
       </div>
     );
   }

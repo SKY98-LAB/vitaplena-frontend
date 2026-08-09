@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext';
 import useAuth from './hooks/useAuth';
 import storage from './services/storage';
-import { getHash } from './services/platform';
+import { esNativo, getHash, onUrlAbierto } from './services/platform';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
@@ -17,9 +17,21 @@ function AppContent() {
   const { usuario, loading, logout } = useAuth();
   const [pagina, setPagina] = useState('dashboard');
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
+  const [urlAbierta, setUrlAbierta] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
     return storage.getItem('darkMode') === 'true';
   });
+
+  useEffect(() => {
+    if (usuario) {
+      return undefined;
+    }
+    return onUrlAbierto((url) => {
+      if (url.includes('access_token')) {
+        setUrlAbierta(url);
+      }
+    });
+  }, [usuario]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
@@ -35,8 +47,8 @@ function AppContent() {
   }
 
   if (!usuario) {
-    if (getHash() && getHash().includes('access_token')) {
-      return <AuthCallback />;
+    if (getHash().includes('access_token') || (esNativo() && urlAbierta?.includes('access_token'))) {
+      return <AuthCallback urlAbierta={esNativo() ? urlAbierta : null} onTerminado={() => setUrlAbierta(null)} />;
     }
     if (mostrarRegistro) {
       return <Registro onVolver={() => setMostrarRegistro(false)} />;

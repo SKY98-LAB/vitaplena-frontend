@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VitaPlena</string>
+    <string name="title_activity_main">VitaPlena</string>
+    <string name="package_name">com.vitaplena.app</string>
+    <string name="custom_url_scheme">com.vitaplena.app</string>
+</resources>

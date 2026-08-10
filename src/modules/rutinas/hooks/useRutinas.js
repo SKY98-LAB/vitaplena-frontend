@@ -18,11 +18,6 @@ function useRutinas() {
   const [rutinasHoy, setRutinasHoy] = useState(0);
   const [objetivo, setObjetivo] = useState('hipertrofia');
 
-  useEffect(() => {
-    cargarRutinas();
-    cargarLimite();
-  }, [cargarRutinas, cargarLimite]);
-
   const cargarRutinas = useCallback(async () => {
     try {
       const res = await api.get('/rutinas');
@@ -38,6 +33,11 @@ function useRutinas() {
       setRutinasHoy(res.data.rutinas_hoy || 0);
     } catch (err) {}
   }, []);
+
+  useEffect(() => {
+    cargarRutinas();
+    cargarLimite();
+  }, [cargarRutinas, cargarLimite]);
 
   const puedeCrearRutina = useCallback(async () => {
     if (!esPremium && rutinasHoy >= 3) {

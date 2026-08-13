@@ -49,8 +49,9 @@ export function AuthProvider({ children }) {
       }
       try {
         const res = await api.get('/usuarios/me');
-        storage.setItem('usuario', JSON.stringify(res.data));
-        setUsuario(res.data);
+        const datos = res.data?.usuario ?? res.data;
+        storage.setItem('usuario', JSON.stringify(datos));
+        setUsuario(datos);
         setToken(tokenGuardado);
       } catch (err) {
         if (err.response?.status === 401) {

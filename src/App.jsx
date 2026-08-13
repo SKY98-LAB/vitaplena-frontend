@@ -12,9 +12,14 @@ import Corporal from './pages/Corporal';
 import Bienestar from './pages/Bienestar';
 import Rutinas from './pages/Rutinas';
 import AuthCallback from './pages/AuthCallback';
+import EliminarCuenta from './pages/EliminarCuenta';
+import RecuperarContrasena from './pages/RecuperarContrasena';
+import Ajustes from './pages/Ajustes';
 
 function AppContent() {
   const { usuario, loading, logout } = useAuth();
+  const esPaginaEliminarCuenta = window.location.pathname.replace(/\/+$/, '') === '/eliminar-cuenta';
+  const esPaginaRecuperar = window.location.pathname.replace(/\/+$/, '') === '/recuperar-contrasena';
   const [pagina, setPagina] = useState('dashboard');
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [urlAbierta, setUrlAbierta] = useState(null);
@@ -37,6 +42,14 @@ function AppContent() {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
     storage.setItem('darkMode', darkMode);
   }, [darkMode]);
+
+  if (esPaginaEliminarCuenta) {
+    return <EliminarCuenta />;
+  }
+
+  if (esPaginaRecuperar) {
+    return <RecuperarContrasena />;
+  }
 
   if (loading) {
     return (
@@ -63,6 +76,7 @@ function AppContent() {
     { id: 'alimentacion', label: '🍎', title: 'Comidas' },
     { id: 'corporal', label: '📏', title: 'Cuerpo' },
     { id: 'sueno', label: '😴', title: 'Bienestar' },
+    { id: 'ajustes', label: '⚙️', title: 'Ajustes' },
   ];
 
   return (
@@ -96,6 +110,7 @@ function AppContent() {
         {pagina === 'alimentacion' && <Alimentacion />}
         {pagina === 'corporal' && <Corporal />}
         {pagina === 'sueno' && <Bienestar />}
+        {pagina === 'ajustes' && <Ajustes />}
       </div>
     </div>
   );

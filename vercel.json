@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/eliminar-cuenta", "destination": "/index.html" },
+    { "source": "/eliminar-cuenta/:path*", "destination": "/index.html" },
+    { "source": "/recuperar-contrasena", "destination": "/index.html" },
+    { "source": "/recuperar-contrasena/:path*", "destination": "/index.html" }
+  ]
+}

@@ -22,7 +22,11 @@ function Login({ onCrearCuenta }) {
       const res = await api.post('/usuarios/login', { email, password });
       login(res.data);
     } catch (err) {
-      setError('Email o contraseña incorrectos');
+      if (err.response?.status === 401) {
+        setError('Email o contraseña incorrectos.');
+      } else {
+        setError('No se pudo conectar con el servidor. Inténtalo nuevamente.');
+      }
     }
   };
 
@@ -64,6 +68,14 @@ function Login({ onCrearCuenta }) {
         🅶 Continuar con Google
       </button>
       </form>
+      <p style={{ textAlign: 'center', marginTop: 16 }}>
+        <a
+          href="/recuperar-contrasena"
+          style={{ color: '#2196F3', textDecoration: 'none' }}
+        >
+          ¿Olvidaste tu contraseña?
+        </a>
+      </p>
       <p style={{ textAlign: 'center', marginTop: 20 }}>
         ¿No tienes cuenta? <a href="#" onClick={(e) => { e.preventDefault(); onCrearCuenta(); }}>Crear una</a>
       </p>

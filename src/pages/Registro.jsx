@@ -20,6 +20,11 @@ function Registro({ onVolver }) {
         nombre: form.nombre,
         apellido: form.apellido
       });
+      const loginRes = await api.post('/usuarios/login', {
+        email: form.email,
+        password: form.password
+      });
+      login(loginRes.data);
       await api.put('/usuarios/perfil', {
         peso_kg: parseFloat(form.peso_kg),
         altura_cm: parseFloat(form.altura_cm),
@@ -28,11 +33,6 @@ function Registro({ onVolver }) {
         nivel_experiencia: form.nivel,
         objetivo_principal: form.objetivo
       });
-      const loginRes = await api.post('/usuarios/login', {
-        email: form.email,
-        password: form.password
-      });
-      login(loginRes.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Error al registrarse');
     }

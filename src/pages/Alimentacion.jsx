@@ -11,7 +11,7 @@ function Alimentacion() {
   const [busqueda, setBusqueda] = useState('');
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [alimentoSeleccionado, setAlimentoSeleccionado] = useState(null);
-  const [cantidad, setCantidad] = useState(100);
+  const [cantidad, setCantidad] = useState('100');
   const [tipoComida, setTipoComida] = useState('almuerzo');
   const comidas = datos?.comidas?.comidas ?? [];
   const totales = datos?.comidas?.totales ?? {};
@@ -32,7 +32,7 @@ function Alimentacion() {
       await api.post('/alimentacion/comidas', {
         fecha_hora: new Date().toISOString(),
         tipo_comida: tipoComida,
-        alimentos: [{ alimento_id: alimentoSeleccionado.id, cantidad_gramos: cantidad }]
+        alimentos: [{ alimento_id: alimentoSeleccionado.id, cantidad_gramos: Number(cantidad) }]
       });
       showAlert('✅ Comida registrada!');
       setMostrarRegistro(false);

@@ -13,21 +13,23 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const logout = useCallback(() => {
-    storage.removeItem('token');
-    storage.removeItem('usuario');
+    storage.clearSession();
     setToken(null);
     setUsuario(null);
   }, []);
 
   const login = useCallback((datos) => {
-    const { accessToken, usuario, esNuevo } = datos || {};
+    const { accessToken, refreshToken, usuario, esNuevo } = datos || {};
 
     if (accessToken) {
-      storage.setItem('token', accessToken);
+      storage.setToken(accessToken);
       setToken(accessToken);
     }
+    if (refreshToken) {
+      storage.setRefreshToken(refreshToken);
+    }
     if (usuario) {
-      storage.setItem('usuario', JSON.stringify(usuario));
+      storage.setUsuario(usuario);
       if (!esNuevo) {
         setUsuario(usuario);
       }
@@ -50,9 +52,11 @@ export function AuthProvider({ children }) {
       try {
         const res = await api.get('/usuarios/me');
         const datos = res.data?.usuario ?? res.data;
-        storage.setItem('usuario', JSON.stringify(datos));
+        storage.setUsuario(datos);
         setUsuario(datos);
-        setToken(tokenGuardado);
+        // El interceptor pudo haber renovado el accessToken vía refresh;
+        // se usa el token vigente en storage, no el que se leyó al inicio.
+        setToken(storage.getToken());
       } catch (err) {
         if (err.response?.status === 401) {
           logout();

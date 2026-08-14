@@ -7,6 +7,7 @@ function FormularioComida({
   onRegistrar,
   onCerrar
 }) {
+  const gramos = Number(cantidad) || 0;
   return (
     <div className="modal" onClick={onCerrar}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -17,13 +18,13 @@ function FormularioComida({
           <input
             type="number"
             value={cantidad}
-            onChange={(e) => onCantidad(Number(e.target.value))}
+            onChange={(e) => onCantidad(e.target.value)}
             className="input"
             style={{ width: 120 }}
           />
           <p style={{ background: '#e8f5e9', padding: 10, borderRadius: 8, marginTop: 8 }}>
-            = {((alimento.calorias_por_100g * cantidad) / 100).toFixed(0)} kcal,{' '}
-            {((alimento.proteinas_por_100g * cantidad) / 100).toFixed(1)}g proteína
+            = {((alimento.calorias_por_100g * gramos) / 100).toFixed(0)} kcal,{' '}
+            {((alimento.proteinas_por_100g * gramos) / 100).toFixed(1)}g proteína
           </p>
         </div>
         <select value={tipoComida} onChange={(e) => onTipoComida(e.target.value)} className="input">

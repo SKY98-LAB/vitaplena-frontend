@@ -3,7 +3,7 @@ import api from '../services/api';
 import useAuth from '../hooks/useAuth';
 
 function Registro({ onVolver }) {
-  const { login } = useAuth();
+  const { login, actualizarUsuario } = useAuth();
   const [form, setForm] = useState({
     email: '', password: '', nombre: '', apellido: '',
     peso_kg: '', altura_cm: '', sexo: 'M',
@@ -24,8 +24,8 @@ function Registro({ onVolver }) {
         email: form.email,
         password: form.password
       });
-      login(loginRes.data);
-      await api.put('/usuarios/perfil', {
+      await login(loginRes.data);
+      const perfilRes = await api.put('/usuarios/perfil', {
         peso_kg: parseFloat(form.peso_kg),
         altura_cm: parseFloat(form.altura_cm),
         sexo: form.sexo,
@@ -33,6 +33,9 @@ function Registro({ onVolver }) {
         nivel_experiencia: form.nivel,
         objetivo_principal: form.objetivo
       });
+      if (perfilRes.data?.usuario) {
+        actualizarUsuario(perfilRes.data.usuario);
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Error al registrarse');
     }

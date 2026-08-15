@@ -29,7 +29,8 @@ function PremiumBanner() {
     }
   };
 
-  if (!suscripcion || suscripcion.estado === 'activo') return null;
+  if (!suscripcion) return null;
+  if (suscripcion.estado === 'activo' && suscripcion.plan !== 'gratis') return null;
 
   return (
     <>

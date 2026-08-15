@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
     setUsuario(null);
   }, []);
 
-  const login = useCallback((datos) => {
+  const login = useCallback(async (datos) => {
     const { accessToken, refreshToken, usuario, esNuevo } = datos || {};
 
     if (accessToken) {
@@ -34,6 +34,29 @@ export function AuthProvider({ children }) {
         setUsuario(usuario);
       }
     }
+
+    // Nuevo usuario (Google): la sesión no se completa hasta terminar su perfil.
+    if (esNuevo) {
+      return;
+    }
+
+    // Cargar el usuario completo desde /usuarios/me para que peso_kg y
+    // altura_cm queden disponibles tras iniciar sesión, sin recargar la app.
+    try {
+      const res = await api.get('/usuarios/me');
+      const datosUsuario = res.data?.usuario ?? res.data;
+      storage.setUsuario(datosUsuario);
+      setUsuario(datosUsuario);
+      setToken(storage.getToken());
+    } catch (err) {
+      // Se conserva el usuario mínimo recibido en la respuesta de login.
+    }
+  }, []);
+
+  const actualizarUsuario = useCallback((nuevoUsuario) => {
+    if (!nuevoUsuario) return;
+    storage.setUsuario(nuevoUsuario);
+    setUsuario(nuevoUsuario);
   }, []);
 
   useEffect(() => {
@@ -70,7 +93,7 @@ export function AuthProvider({ children }) {
   }, [logout]);
 
   return (
-    <AuthContext.Provider value={{ usuario, token, loading, login, logout, autenticado: Boolean(token) }}>
+    <AuthContext.Provider value={{ usuario, token, loading, login, logout, actualizarUsuario, autenticado: Boolean(token) }}>
       {children}
     </AuthContext.Provider>
   );

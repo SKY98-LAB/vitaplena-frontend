@@ -7,9 +7,12 @@ function Dashboard({ usuario, onNavigate }) {
   const resumen = datos ? {
     calorias: datos.comidas?.totales?.calorias || 0,
     proteinas: datos.comidas?.totales?.proteinas || 0,
-    imc: datos.corporal?.imc || '--',
+    imc: datos.corporal?.ultimo_registro?.imc
+      || (usuario?.peso_kg && usuario?.altura_cm
+          ? Number(usuario.peso_kg / Math.pow(Number(usuario.altura_cm) / 100, 2)).toFixed(1)
+          : '--'),
     clasificacion: datos.corporal?.clasificacion_imc || '',
-    peso: datos.corporal?.ultimo_registro?.peso_kg || '--',
+    peso: datos.corporal?.ultimo_registro?.peso_kg || usuario?.peso_kg || '--',
     sueno: datos.sueno?.promedio_horas || '--',
     calidad: datos.sueno?.promedio_calidad || '--',
     agua: datos.hidratacion?.total_ml || 0,

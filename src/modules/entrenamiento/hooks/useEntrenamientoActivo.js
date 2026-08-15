@@ -51,6 +51,7 @@ function useEntrenamientoActivo({ rutinaId, ejercicios, modo, onFinalizar, onCan
     setMostrarPostura(false);
     const ejActual = ejercicios[idx];
     if (!ejActual) return;
+    setEjercicioActual(idx);
     setFase('ejercicio');
     contarTiempo(
       getDuracionEjercicio(ejActual),
